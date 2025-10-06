@@ -1,12 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Entities;
 
 namespace Domain.Interfaces
 {
-	internal interface ICartRepository
+	public interface ICartRepository
 	{
+		ICollection<CartItem> GetCartItems(int userId);
+
+		void ClearCart(int userId);
+
+		void AddItemToCart(CartItem mCartItem);
+
+		void ChangeQuantity(int cartId, int cartItemId, decimal quantityChange);
+
+		void DeleteCartItem(int cartId, int cartItemId);
+
+		void CountCartAmount(int cartId);
 	}
 }
