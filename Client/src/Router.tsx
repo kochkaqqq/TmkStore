@@ -1,13 +1,13 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { HomePage } from './pages/Home.page';
-
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <HomePage />,
-  },
-]);
+import { ShowInitData } from './pages/ShowInitData.page';
+import { Routes, Route } from 'react-router-dom';
 
 export function Router() {
-  return <RouterProvider router={router} />;
+    return (
+        <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/init-data" element={<ShowInitData />} />
+        </Routes>
+    );
 }
+
