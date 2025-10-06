@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.DAL.Nomenclatures;
+using Domain.Entities;
 
 namespace Domain.Interfaces
 {
-	internal interface INomenclatureRepository
+	public interface INomenclatureRepository
 	{
+		ICollection<Nomenclature> GetCollection(GetNomenclatureListRequest request);
+
+		Nomenclature GetNomenclature(int nomenclatureId);
 	}
 }
