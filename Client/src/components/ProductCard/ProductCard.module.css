@@ -1,0 +1,113 @@
+.card {
+  width: 420px;
+  margin: 10px;
+  border-radius: 16px;
+  color: white;
+  border: 0.2px solid white; 
+  background-color: inherit;
+  box-shadow: none; 
+}
+
+
+.titleLevel1 {
+  font-weight: 600;
+  font-size: 1.6rem;
+  margin-bottom: 12px;
+  color: white;
+}
+
+.titleLevel2Row {
+  display: flex;
+  justify-content: left;
+  font-weight: 600;
+  margin-bottom: 8px;
+  gap: 20px;
+}
+
+.labelText {
+  color: #a0a0a0;
+  font-weight: 600;
+  margin-right: 4px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.valueText {
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Обёртка для единиц измерения: серый цвет и lower case */
+.unitText {
+  color: #a0a0a0;
+  font-weight: 600;
+  text-transform: lowercase;
+  margin-left: 2px;
+  white-space: nowrap;
+}
+
+/* Контейнер для Марки стали и Завода - в одну строку */
+.titleLevel3Row {
+  display: flex;
+  justify-content: left;
+  margin-bottom: 6px;
+  gap: 20px;
+  font-weight: 500;
+  color: #a0a0a0;
+}
+
+.titleLevel3Row .valueText {
+  color: white;
+}
+
+.titleLevel4Row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 12px;
+  font-weight: 600;
+}
+
+.inStock {
+  color: #a0a0a0;
+  margin-bottom: 6px;
+}
+
+.outOfStock {
+  color: #a0a0a0;
+  margin-bottom: 6px;
+}
+
+.titleLevel5 {
+  color: white;
+  margin-bottom: 6px;
+}
+
+.priceText {
+  font-weight: 800;
+  font-size: 1.6rem;
+}
+
+.buttonsGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.buttonOval {
+  border-radius: 9999px;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 8px 20px;
+  transition: background-color 0.3s ease;
+  color: white;
+  border-color: white;
+}
+
+.buttonOval:hover {
+  background-color: #ff5106;
+  color: white;
+  border-color: #ff5106;
+}
