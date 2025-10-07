@@ -1,5 +1,5 @@
 import '@mantine/core/styles.css';
-import { MantineProvider, createTheme, useMantineTheme } from '@mantine/core';
+import { MantineProvider, createTheme, useMantineTheme, useComputedColorScheme } from '@mantine/core';
 import { Router } from './Router';
 import { useEffect, useState } from 'react';
 import { init, themeParams, isThemeParamsDark, backButton, miniApp } from "@telegram-apps/sdk";
@@ -22,13 +22,14 @@ const theme = createTheme({
 // Компонент для установки цветов header/bottom bar
 function TelegramColors() {
     const mantineTheme = useMantineTheme();
-
+    const colorScheme = useComputedColorScheme();
     useEffect(() => {
         // Получить background color в зависимости от темы
-        const bgColor = mantineTheme.colors.dark?.[7] || mantineTheme.white;
-
+        const bgColor = colorScheme === 'dark' ? mantineTheme.colors.dark?.[7] : mantineTheme.white;
+        console.log(colorScheme)
         // Установить header color
         if (miniApp.setHeaderColor.isAvailable()) {
+            console.log(bgColor)
             miniApp.setHeaderColor(bgColor);
         }
 
@@ -41,7 +42,7 @@ function TelegramColors() {
         if (miniApp.setBackgroundColor.isAvailable()) {
             miniApp.setBackgroundColor(bgColor);
         }
-    }, [mantineTheme]);
+    }, [mantineTheme, colorScheme]);
 
     return null;
 }

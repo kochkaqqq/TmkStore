@@ -35,19 +35,3 @@
 :where(.mantine-dark) .contactLink:hover .contactBadge {
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
 }
-
-/* Сужаем отступы на мобильных */
-@media (max-width: 480px) {
-    .inner {
-        padding: 6px 12px;
-    }
-
-    .links {
-        gap: 8px;
-    }
-
-    .contactBadge {
-        font-size: 12px;
-        padding: 2px 6px;
-    }
-}

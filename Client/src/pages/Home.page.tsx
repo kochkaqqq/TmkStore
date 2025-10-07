@@ -1,5 +1,7 @@
 import { Header } from '../components/Header/Header';
-import { Title } from '@mantine/core';
+import { Title, Space } from '@mantine/core';
+import { FilterList } from '@/components/Filter/FilterList/FilterList';
+import { FilterProvider } from '../context/FilterContext';
 
 export function HomePage() {
     return (
@@ -18,6 +20,10 @@ export function HomePage() {
             >
                 Интернет-магазин труб и металлопродукции
             </Title>
+            <Space h="xl"></Space>
+            <FilterProvider>
+                <FilterList></FilterList>
+            </FilterProvider>
         </>
     );
 }
