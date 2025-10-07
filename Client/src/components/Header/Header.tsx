@@ -2,7 +2,7 @@ import { IconShoppingCart } from '@tabler/icons-react';
 import { Group, Image, Text, ActionIcon } from '@mantine/core';
 import { useMantineColorScheme } from '@mantine/core';
 import { copy } from './copy';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import classes from './Header.module.css';
 
 const PHONE = '+7 (800) 234-50-05';
@@ -50,14 +50,6 @@ export function Header({ showCart = false }: HeaderProps) {
                         >
                             {EMAIL}
                         </Text>
-                        <Link
-                            key="InitData"
-                            to="/init-data"
-                            className={classes.link}
-                            data-active={location.pathname === "/init-data" || undefined}
-                        >
-                            InitData
-                        </Link>
                     </Group>
 
                     {showCart && (
