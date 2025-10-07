@@ -3,7 +3,7 @@ import { ProductType } from '../FilterItem/ProductType';
 import { Size } from '../FilterItem/Size';
 import { SteelGrade } from '../FilterItem/SteelGrade';
 import { Warehouse } from '../FilterItem/Warehouse';
-import { Manufacturer } from '../FilterItem/Manufacturer';
+import { Manufacturer } from '../FilterItem/Manufacture';
 import { Gost } from '../FilterItem/Gost';
 import { useFilters } from '../../../context/FilterContext';
 
@@ -13,17 +13,17 @@ export function FilterList() {
     const colorScheme = useComputedColorScheme();
 
     const handleResetAll = () => {
-        updateFilter('stock_id', '');
-        updateFilter('stock_name', '');
-        updateFilter('type_id', '');
-        updateFilter('type_name', '');
+        updateFilter('stock_ids', []);
+        updateFilter('stock_names', []);
+        updateFilter('type_ids', []);
+        updateFilter('type_names', []);
         updateFilter('diameter_min', 0);
         updateFilter('diameter_max', 0);
         updateFilter('wall_thickness_min', 0);
         updateFilter('wall_thickness_max', 0);
-        updateFilter('gost', '');
-        updateFilter('steel_grade', '');
-        updateFilter('manufacturer', '');
+        updateFilter('gosts', []);
+        updateFilter('steel_grades', []);
+        updateFilter('manufacturers', []);
     };
 
     return (

@@ -11,6 +11,7 @@ import {
     NumberInput
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useState, useEffect } from 'react';
 import { useFilters } from '../../../context/FilterContext';
 
 export function Size() {
@@ -19,18 +20,51 @@ export function Size() {
     const theme = useMantineTheme();
     const { filters, updateFilter } = useFilters();
 
-    // Проверяем, выбран ли хотя бы один параметр размера
+    // Локальный state для временных значений
+    const [tempDiameterMin, setTempDiameterMin] = useState(0);
+    const [tempDiameterMax, setTempDiameterMax] = useState(0);
+    const [tempWallThicknessMin, setTempWallThicknessMin] = useState(0);
+    const [tempWallThicknessMax, setTempWallThicknessMax] = useState(0);
+
+    // Проверяем, выбран ли хотя бы один параметр размера (из глобального состояния)
     const isFilterActive =
         filters.diameter_min > 0 ||
         filters.diameter_max > 0 ||
         filters.wall_thickness_min > 0 ||
         filters.wall_thickness_max > 0;
 
+    // Инициализируем временное состояние при открытии drawer
+    useEffect(() => {
+        if (opened) {
+            setTempDiameterMin(filters.diameter_min);
+            setTempDiameterMax(filters.diameter_max);
+            setTempWallThicknessMin(filters.wall_thickness_min);
+            setTempWallThicknessMax(filters.wall_thickness_max);
+        }
+    }, [opened, filters.diameter_min, filters.diameter_max, filters.wall_thickness_min, filters.wall_thickness_max]);
+
+    const handleApply = () => {
+        updateFilter('diameter_min', tempDiameterMin);
+        updateFilter('diameter_max', tempDiameterMax);
+        updateFilter('wall_thickness_min', tempWallThicknessMin);
+        updateFilter('wall_thickness_max', tempWallThicknessMax);
+        close();
+    };
+
     const handleReset = () => {
-        updateFilter('diameter_min', 0);
-        updateFilter('diameter_max', 0);
-        updateFilter('wall_thickness_min', 0);
-        updateFilter('wall_thickness_max', 0);
+        setTempDiameterMin(0);
+        setTempDiameterMax(0);
+        setTempWallThicknessMin(0);
+        setTempWallThicknessMax(0);
+    };
+
+    const handleCancel = () => {
+        // Сбрасываем временные изменения при закрытии без применения
+        setTempDiameterMin(filters.diameter_min);
+        setTempDiameterMax(filters.diameter_max);
+        setTempWallThicknessMin(filters.wall_thickness_min);
+        setTempWallThicknessMax(filters.wall_thickness_max);
+        close();
     };
 
     return (
@@ -53,7 +87,7 @@ export function Size() {
 
             <Drawer
                 opened={opened}
-                onClose={close}
+                onClose={handleCancel}
                 title="Размер"
                 position="right"
                 size="md"
@@ -69,16 +103,16 @@ export function Size() {
                                             label="Минимум"
                                             placeholder="0"
                                             min={0}
-                                            value={filters.diameter_min === 0 ? undefined : filters.diameter_min}
-                                            onChange={(value) => updateFilter('diameter_min', Number(value) || 0)}
+                                            value={tempDiameterMin === 0 ? undefined : tempDiameterMin}
+                                            onChange={(value) => setTempDiameterMin(Number(value) || 0)}
                                             allowNegative={false}
                                         />
                                         <NumberInput
                                             label="Максимум"
                                             placeholder="∞"
                                             min={0}
-                                            value={filters.diameter_max === 0 ? undefined : filters.diameter_max}
-                                            onChange={(value) => updateFilter('diameter_max', Number(value) || 0)}
+                                            value={tempDiameterMax === 0 ? undefined : tempDiameterMax}
+                                            onChange={(value) => setTempDiameterMax(Number(value) || 0)}
                                             allowNegative={false}
                                         />
                                     </Group>
@@ -94,8 +128,8 @@ export function Size() {
                                             placeholder="0"
                                             min={0}
                                             decimalScale={2}
-                                            value={filters.wall_thickness_min === 0 ? undefined : filters.wall_thickness_min}
-                                            onChange={(value) => updateFilter('wall_thickness_min', Number(value) || 0)}
+                                            value={tempWallThicknessMin === 0 ? undefined : tempWallThicknessMin}
+                                            onChange={(value) => setTempWallThicknessMin(Number(value) || 0)}
                                             allowNegative={false}
                                         />
                                         <NumberInput
@@ -103,8 +137,8 @@ export function Size() {
                                             placeholder="∞"
                                             min={0}
                                             decimalScale={2}
-                                            value={filters.wall_thickness_max === 0 ? undefined : filters.wall_thickness_max}
-                                            onChange={(value) => updateFilter('wall_thickness_max', Number(value) || 0)}
+                                            value={tempWallThicknessMax === 0 ? undefined : tempWallThicknessMax}
+                                            onChange={(value) => setTempWallThicknessMax(Number(value) || 0)}
                                             allowNegative={false}
                                         />
                                     </Group>
@@ -126,7 +160,7 @@ export function Size() {
                             </Button>
                             <Button
                                 color={theme.other.contrast}
-                                onClick={close}
+                                onClick={handleApply}
                             >
                                 Применить
                             </Button>

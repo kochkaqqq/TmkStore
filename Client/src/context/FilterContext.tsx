@@ -1,22 +1,22 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface Filters {
-    stock_id: string;
-    stock_name: string;
-    type_id: string;
-    type_name: string;
+    stock_ids: string[];
+    stock_names: string[];
+    type_ids: string[]; // Изменено на массив
+    type_names: string[]; // Изменено на массив
     diameter_min: number;
     diameter_max: number;
     wall_thickness_min: number;
     wall_thickness_max: number;
-    gost: string;
-    steel_grade: string;
-    manufacturer: string;
+    gosts: string[];
+    steel_grades: string[];
+    manufacturers: string[];
 }
 
 interface FilterContextType {
     filters: Filters;
-    updateFilter: (filterName: keyof Filters, value: string | number) => void;
+    updateFilter: (filterName: keyof Filters, value: string | number | string[]) => void;
 }
 
 const FilterContext = createContext<FilterContextType | null>(null);
@@ -27,20 +27,20 @@ interface FilterProviderProps {
 
 export const FilterProvider = ({ children }: FilterProviderProps) => {
     const [filters, setFilters] = useState<Filters>({
-        stock_id: "",
-        stock_name: "",
-        type_id: "",
-        type_name: "",
+        stock_ids: [],
+        stock_names: [],
+        type_ids: [], // Теперь массив
+        type_names: [], // Теперь массив
         diameter_min: 0,
         diameter_max: 0,
         wall_thickness_min: 0,
         wall_thickness_max: 0,
-        gost: "",
-        steel_grade: "",
-        manufacturer: "",
+        gosts: [],
+        steel_grades: [],
+        manufacturers: [],
     });
 
-    const updateFilter = (filterName: keyof Filters, value: string | number) => {
+    const updateFilter = (filterName: keyof Filters, value: string | number | string[]) => {
         setFilters(prev => ({
             ...prev,
             [filterName]: value

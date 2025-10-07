@@ -1,46 +1,74 @@
-import { Button, Drawer, Text, useComputedColorScheme, Stack, Radio, useMantineTheme, Box, Group, Space } from '@mantine/core';
+import { Button, Drawer, Text, useComputedColorScheme, Stack, Checkbox, useMantineTheme, Box, Group, Space } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useFilters } from '../../../context/FilterContext';
+import { useProducts } from '../../../context/ProductContext';
 
 export function Gost() {
     const [opened, { open, close }] = useDisclosure(false);
     const colorScheme = useComputedColorScheme();
     const [gosts, setGosts] = useState<string[]>([]);
-    const [loading, setLoading] = useState(false);
     const { filters, updateFilter } = useFilters();
+    const { products, loading } = useProducts();
     const theme = useMantineTheme();
 
-    // Проверяем, выбран ли фильтр
-    const isFilterActive = filters.gost !== '';
+    // Локальный state для временных изменений
+    const [tempGosts, setTempGosts] = useState<string[]>([]);
 
-    // Мок данных - список ГОСТов
-    const mockGosts: string[] = [
-        "ГОСТ 8732-78",
-        "ГОСТ 8731-74",
-        "ГОСТ 10704-91",
-        "ГОСТ 10705-80",
-        "ГОСТ 20295-85",
-        "ГОСТ 14-162-68-2000"
-    ];
+    // Проверяем, выбран ли хотя бы один фильтр (из глобального состояния)
+    const isFilterActive = filters.gosts.length > 0;
 
-    // Симуляция API запроса
+    // Извлекаем уникальные ГОСТы из загруженных данных
+    const uniqueGosts = useMemo(() => {
+        const gostsSet = new Set<string>();
+
+        products.forEach(product => {
+            if (product.gost) {
+                gostsSet.add(product.gost);
+            }
+        });
+
+        return Array.from(gostsSet).sort();
+    }, [products]);
+
+    // Обновляем список ГОСТов при открытии drawer
+    useEffect(() => {
+        if (opened && uniqueGosts.length > 0) {
+            setGosts(uniqueGosts);
+        }
+    }, [opened, uniqueGosts]);
+
+    // Инициализируем временное состояние при открытии drawer
     useEffect(() => {
         if (opened) {
-            setLoading(true);
-            setTimeout(() => {
-                setGosts(mockGosts);
-                setLoading(false);
-            }, 500);
+            setTempGosts([...filters.gosts]);
         }
-    }, [opened]);
+    }, [opened, filters.gosts]);
 
-    const handleRadioChange = (value: string) => {
-        updateFilter('gost', value);
+    const handleCheckboxChange = (gost: string, checked: boolean) => {
+        let newGosts: string[];
+
+        if (checked) {
+            newGosts = [...tempGosts, gost];
+        } else {
+            newGosts = tempGosts.filter(g => g !== gost);
+        }
+
+        setTempGosts(newGosts);
+    };
+
+    const handleApply = () => {
+        updateFilter('gosts', tempGosts);
+        close();
     };
 
     const handleReset = () => {
-        updateFilter('gost', '');
+        setTempGosts([]);
+    };
+
+    const handleCancel = () => {
+        setTempGosts([...filters.gosts]);
+        close();
     };
 
     return (
@@ -58,12 +86,14 @@ export function Gost() {
                         : (colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.dark[9]),
                 })}
             >
-                <Text fw={100} px="md" style={{ letterSpacing: '1px' }}>ГОСТ</Text>
+                <Text fw={100} px="md" style={{ letterSpacing: '1px' }}>
+                    ГОСТ {isFilterActive && `(${filters.gosts.length})`}
+                </Text>
             </Button>
 
             <Drawer
                 opened={opened}
-                onClose={close}
+                onClose={handleCancel}
                 title="ГОСТ"
                 position="right"
                 size="md"
@@ -73,21 +103,17 @@ export function Gost() {
                         {loading ? (
                             <Text>Загрузка...</Text>
                         ) : (
-                            <Radio.Group
-                                value={filters.gost}
-                                onChange={handleRadioChange}
-                            >
-                                <Stack gap="sm">
-                                    {gosts.map((gost) => (
-                                        <Radio
-                                            key={gost}
-                                            value={gost}
-                                            label={gost}
-                                            color={theme.other.contrast}
-                                        />
-                                    ))}
-                                </Stack>
-                            </Radio.Group>
+                            <Stack gap="sm">
+                                {gosts.map((gost) => (
+                                    <Checkbox
+                                        key={gost}
+                                        checked={tempGosts.includes(gost)}
+                                        onChange={(event) => handleCheckboxChange(gost, event.currentTarget.checked)}
+                                        label={gost}
+                                        color={theme.other.contrast}
+                                    />
+                                ))}
+                            </Stack>
                         )}
                     </Box>
                     <Space h="md"></Space>
@@ -102,7 +128,7 @@ export function Gost() {
                             </Button>
                             <Button
                                 color={theme.other.contrast}
-                                onClick={close}
+                                onClick={handleApply}
                             >
                                 Применить
                             </Button>

@@ -1,0 +1,132 @@
+import { ProductCard } from '../ProductCard/ProductCard';
+import { Title, Loader, Center, Text, useComputedColorScheme } from '@mantine/core';
+import { useFilters } from '../../context/FilterContext';
+import { useProducts } from '../../context/ProductContext';
+import { Product } from '../../utils/product.types';
+import { useMemo, useState, useEffect } from 'react';
+
+export function ProductList() {
+    const { filters } = useFilters();
+    const { products } = useProducts();
+    const [isLoading, setIsLoading] = useState(false);
+    const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
+    const colorScheme = useComputedColorScheme();
+
+    // Фильтрация продуктов на основе выбранных фильтров
+    const filteredProducts = useMemo(() => {
+        return products.filter(product => {
+            // Фильтр по типу продукции
+            if (filters.type_ids.length > 0) {
+                const matchesType = filters.type_ids.some(typeId => product.type_id === typeId);
+                if (!matchesType) return false;
+            }
+
+            // Фильтр по складу - проверяем availability
+            if (filters.stock_ids.length > 0) {
+                const hasStock = product.availability.some(avail =>
+                    filters.stock_ids.includes(avail.stock.id)
+                );
+                if (!hasStock) return false;
+            }
+
+            // Фильтр по марке стали
+            if (filters.steel_grades.length > 0) {
+                const matchesGrade = filters.steel_grades.includes(product.steel_grade);
+                if (!matchesGrade) return false;
+            }
+
+            // Фильтр по ГОСТу
+            if (filters.gosts.length > 0) {
+                const matchesGost = filters.gosts.includes(product.gost);
+                if (!matchesGost) return false;
+            }
+
+            // Фильтр по производителю
+            if (filters.manufacturers.length > 0) {
+                const matchesManufacturer = filters.manufacturers.includes(product.manufacturer);
+                if (!matchesManufacturer) return false;
+            }
+
+            // Фильтр по диаметру
+            if (filters.diameter_min > 0 && product.diameter < filters.diameter_min) {
+                return false;
+            }
+            if (filters.diameter_max > 0 && product.diameter > filters.diameter_max) {
+                return false;
+            }
+
+            // Фильтр по толщине стенки
+            if (filters.wall_thickness_min > 0 && product.wall_thickness < filters.wall_thickness_min) {
+                return false;
+            }
+            if (filters.wall_thickness_max > 0 && product.wall_thickness > filters.wall_thickness_max) {
+                return false;
+            }
+
+            return true;
+        });
+    }, [products, filters]);
+
+    useEffect(() => {
+        setIsLoading(true);
+        const timer = setTimeout(() => {
+            setDisplayedProducts(filteredProducts);
+            setIsLoading(false);
+        }, 100);
+
+        return () => clearTimeout(timer);
+    }, [filteredProducts]);
+
+    if (isLoading) {
+        return (
+            <Center style={{ marginTop: '3rem', minHeight: '300px' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <Loader size="md" color={colorScheme === 'dark' ? 'gray.0' : 'dark.6'} />
+                    <Text mt="md" c="dimmed">Поиск товаров...</Text>
+                </div>
+            </Center>
+        );
+    }
+
+    return (
+        <div
+            style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 16,
+                marginTop: '1.5rem',
+                paddingLeft: '1rem',
+                paddingRight: '1rem',
+            }}
+        >
+            {displayedProducts.length > 0 ? (
+                displayedProducts.map((product) => {
+                    // Получаем первую доступность для отображения
+                    const firstAvailability = product.availability[0];
+                    const inStock = product.availability.some(
+                        avail => avail.in_stock_tons > 0 || avail.in_stock_meters > 0
+                    );
+
+                    return (
+                        <ProductCard
+                            key={product.id}
+                            id={product.id}
+                            description={product.name}
+                            ntd={product.gost}
+                            thickness={`${product.wall_thickness} мм`}
+                            size={`${product.diameter} мм`}
+                            steelGrade={product.steel_grade}
+                            factory={product.manufacturer}
+                            inStock={inStock}
+                            priceWithVat={firstAvailability?.pricing.price_per_ton || 0}
+                        />
+                    );
+                })
+            ) : (
+                <Title order={3} c="dimmed" style={{ width: '100%', textAlign: 'center', marginTop: '2rem' }}>
+                    Товары не найдены. Попробуйте изменить фильтры.
+                </Title>
+            )}
+        </div>
+    );
+}
