@@ -24,20 +24,20 @@ const theme = createTheme({
 function TelegramColors() {
     const mantineTheme = useMantineTheme();
     const colorScheme = useComputedColorScheme();
-    
+
     useEffect(() => {
         const bgColor = colorScheme === 'dark' ? mantineTheme.colors.dark?.[7] : mantineTheme.white;
-        
+
         if (miniApp.setHeaderColor.isAvailable()) {
-            miniApp.setHeaderColor(bgColor);
+            miniApp.setHeaderColor(bgColor as any);
         }
 
         if (miniApp.setBottomBarColor.isAvailable()) {
-            miniApp.setBottomBarColor(bgColor);
+            miniApp.setBottomBarColor(bgColor as any);
         }
 
         if (miniApp.setBackgroundColor.isAvailable()) {
-            miniApp.setBackgroundColor(bgColor);
+            miniApp.setBackgroundColor(bgColor as any);
         }
     }, [mantineTheme, colorScheme]);
 
