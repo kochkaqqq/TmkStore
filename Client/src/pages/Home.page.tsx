@@ -6,7 +6,9 @@ import { FilterProvider } from '../context/FilterContext';
 export function HomePage() {
     return (
         <>
-            <Header />
+            <Header
+                showCart={true}
+            />
             <Title
                 order={1}
                 fw={400}
