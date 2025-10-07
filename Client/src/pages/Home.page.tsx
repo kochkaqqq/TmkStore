@@ -1,4 +1,5 @@
 import { Header } from '../components/Header/Header';
+import { ProductList } from '../components/ProductList/ProductList';
 import { Title, Space } from '@mantine/core';
 import { FilterList } from '@/components/Filter/FilterList/FilterList';
 import { FilterProvider } from '../context/FilterContext';
@@ -14,7 +15,7 @@ export function HomePage() {
                 fw={400}
                 tt="uppercase"
                 style={{
-                    fontSize: 'clamp(1.7rem, 4vw, 10rem)', // CSS clamp для плавного масштабирования
+                    fontSize: 'clamp(1.7rem, 4vw, 10rem)',
                     lineHeight: 1.2,
                 }}
                 px="md"
@@ -22,9 +23,11 @@ export function HomePage() {
             >
                 Интернет-магазин труб и металлопродукции
             </Title>
-            <Space h="xl"></Space>
+            <Space h="xl" />
             <FilterProvider>
-                <FilterList></FilterList>
+                <FilterList />
+                <Space h="xs" />
+                <ProductList />
             </FilterProvider>
         </>
     );

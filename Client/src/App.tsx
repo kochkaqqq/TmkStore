@@ -1,9 +1,10 @@
 import '@mantine/core/styles.css';
-import { MantineProvider, createTheme, useMantineTheme, useComputedColorScheme } from '@mantine/core';
+import { MantineProvider, createTheme, useMantineTheme, useComputedColorScheme, Loader, Center, Text } from '@mantine/core';
 import { Router } from './Router';
 import { useEffect, useState } from 'react';
 import { init, themeParams, isThemeParamsDark, backButton, miniApp } from "@telegram-apps/sdk";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { ProductProvider, useProducts } from './context/ProductContext';
 
 const CONTRAST = '#ff5106';
 const ON_CONTRAST = '#ffffff';
@@ -23,22 +24,18 @@ const theme = createTheme({
 function TelegramColors() {
     const mantineTheme = useMantineTheme();
     const colorScheme = useComputedColorScheme();
+    
     useEffect(() => {
-        // Получить background color в зависимости от темы
         const bgColor = colorScheme === 'dark' ? mantineTheme.colors.dark?.[7] : mantineTheme.white;
-        console.log(colorScheme)
-        // Установить header color
+        
         if (miniApp.setHeaderColor.isAvailable()) {
-            console.log(bgColor)
             miniApp.setHeaderColor(bgColor);
         }
 
-        // Установить bottom bar color (если доступно)
         if (miniApp.setBottomBarColor.isAvailable()) {
             miniApp.setBottomBarColor(bgColor);
         }
 
-        // Установить background color приложения
         if (miniApp.setBackgroundColor.isAvailable()) {
             miniApp.setBackgroundColor(bgColor);
         }
@@ -47,25 +44,37 @@ function TelegramColors() {
     return null;
 }
 
-export default function App() {
-    const [colorScheme, setColorScheme] = useState<'light' | 'dark'>('light');
+function AppLoader({ children }: { children: React.ReactNode }) {
+    const { loading, error } = useProducts();
+
+    if (loading) {
+        return (
+            <Center style={{ minHeight: '100vh' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <Loader size="xl" type="dots" />
+                    <Text mt="md" c="dimmed">Загрузка данных...</Text>
+                </div>
+            </Center>
+        );
+    }
+
+    if (error) {
+        return (
+            <Center style={{ minHeight: '100vh' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <Text c="red" size="lg" fw={600}>Ошибка загрузки</Text>
+                    <Text mt="sm" c="dimmed">{error}</Text>
+                </div>
+            </Center>
+        );
+    }
+
+    return <>{children}</>;
+}
+
+function AppContent() {
     const navigate = useNavigate();
     const location = useLocation();
-
-    useEffect(() => {
-        init();
-
-        if (miniApp.mount.isAvailable()) {
-            miniApp.mount();
-        }
-
-        if (themeParams.mount.isAvailable()) {
-            themeParams.mount();
-        }
-
-        const isDark = isThemeParamsDark();
-        setColorScheme(isDark ? 'dark' : 'light');
-    }, []);
 
     useEffect(() => {
         if (backButton.mount.isAvailable()) {
@@ -87,9 +96,38 @@ export default function App() {
     }, [location.pathname, navigate]);
 
     return (
-        <MantineProvider theme={theme} forceColorScheme={colorScheme}>
+        <>
             <TelegramColors />
-            <Router />
+            <AppLoader>
+                <Router />
+            </AppLoader>
+        </>
+    );
+}
+
+export default function App() {
+    const [colorScheme, setColorScheme] = useState<'light' | 'dark'>('light');
+
+    useEffect(() => {
+        init();
+
+        if (miniApp.mount.isAvailable()) {
+            miniApp.mount();
+        }
+
+        if (themeParams.mount.isAvailable()) {
+            themeParams.mount();
+        }
+
+        const isDark = isThemeParamsDark();
+        setColorScheme(isDark ? 'dark' : 'light');
+    }, []);
+
+    return (
+        <MantineProvider theme={theme} forceColorScheme={colorScheme}>
+            <ProductProvider>
+                <AppContent />
+            </ProductProvider>
         </MantineProvider>
     );
 }

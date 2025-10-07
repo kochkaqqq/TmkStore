@@ -1,47 +1,74 @@
-import { Button, Drawer, Text, useComputedColorScheme, Stack, Radio, useMantineTheme, Box, Group, Space } from '@mantine/core';
+import { Button, Drawer, Text, useComputedColorScheme, Stack, Checkbox, useMantineTheme, Box, Group, Space } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useFilters } from '../../../context/FilterContext';
+import { useProducts } from '../../../context/ProductContext';
 
 export function SteelGrade() {
     const [opened, { open, close }] = useDisclosure(false);
     const colorScheme = useComputedColorScheme();
     const [steelGrades, setSteelGrades] = useState<string[]>([]);
-    const [loading, setLoading] = useState(false);
     const { filters, updateFilter } = useFilters();
+    const { products, loading } = useProducts();
     const theme = useMantineTheme();
 
-    // Проверяем, выбран ли фильтр
-    const isFilterActive = filters.steel_grade !== '';
+    // Локальный state для временных изменений
+    const [tempSteelGrades, setTempSteelGrades] = useState<string[]>([]);
 
-    // Мок данных - список марок стали
-    const mockSteelGrades: string[] = [
-        "09Г2С",
-        "20",
-        "10",
-        "12Х18Н10Т",
-        "08Х18Н10",
-        "17Г1С",
-        "Ст3сп"
-    ];
+    // Проверяем, выбран ли хотя бы один фильтр (из глобального состояния)
+    const isFilterActive = filters.steel_grades.length > 0;
 
-    // Симуляция API запроса
+    // Извлекаем уникальные марки стали из загруженных данных
+    const uniqueSteelGrades = useMemo(() => {
+        const gradesSet = new Set<string>();
+
+        products.forEach(product => {
+            if (product.steel_grade) {
+                gradesSet.add(product.steel_grade);
+            }
+        });
+
+        return Array.from(gradesSet).sort();
+    }, [products]);
+
+    // Обновляем список марок стали при открытии drawer
+    useEffect(() => {
+        if (opened && uniqueSteelGrades.length > 0) {
+            setSteelGrades(uniqueSteelGrades);
+        }
+    }, [opened, uniqueSteelGrades]);
+
+    // Инициализируем временное состояние при открытии drawer
     useEffect(() => {
         if (opened) {
-            setLoading(true);
-            setTimeout(() => {
-                setSteelGrades(mockSteelGrades);
-                setLoading(false);
-            }, 500);
+            setTempSteelGrades([...filters.steel_grades]);
         }
-    }, [opened]);
+    }, [opened, filters.steel_grades]);
 
-    const handleRadioChange = (value: string) => {
-        updateFilter('steel_grade', value);
+    const handleCheckboxChange = (grade: string, checked: boolean) => {
+        let newGrades: string[];
+
+        if (checked) {
+            newGrades = [...tempSteelGrades, grade];
+        } else {
+            newGrades = tempSteelGrades.filter(g => g !== grade);
+        }
+
+        setTempSteelGrades(newGrades);
+    };
+
+    const handleApply = () => {
+        updateFilter('steel_grades', tempSteelGrades);
+        close();
     };
 
     const handleReset = () => {
-        updateFilter('steel_grade', '');
+        setTempSteelGrades([]);
+    };
+
+    const handleCancel = () => {
+        setTempSteelGrades([...filters.steel_grades]);
+        close();
     };
 
     return (
@@ -59,12 +86,14 @@ export function SteelGrade() {
                         : (colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.dark[9]),
                 })}
             >
-                <Text fw={100} px="md" style={{ letterSpacing: '1px' }}>Марка стали</Text>
+                <Text fw={100} px="md" style={{ letterSpacing: '1px' }}>
+                    Марка стали {isFilterActive && `(${filters.steel_grades.length})`}
+                </Text>
             </Button>
 
             <Drawer
                 opened={opened}
-                onClose={close}
+                onClose={handleCancel}
                 title="Марка стали"
                 position="right"
                 size="md"
@@ -74,21 +103,17 @@ export function SteelGrade() {
                         {loading ? (
                             <Text>Загрузка...</Text>
                         ) : (
-                            <Radio.Group
-                                value={filters.steel_grade}
-                                onChange={handleRadioChange}
-                            >
-                                <Stack gap="sm">
-                                    {steelGrades.map((grade) => (
-                                        <Radio
-                                            key={grade}
-                                            value={grade}
-                                            label={grade}
-                                            color={theme.other.contrast}
-                                        />
-                                    ))}
-                                </Stack>
-                            </Radio.Group>
+                            <Stack gap="sm">
+                                {steelGrades.map((grade) => (
+                                    <Checkbox
+                                        key={grade}
+                                        checked={tempSteelGrades.includes(grade)}
+                                        onChange={(event) => handleCheckboxChange(grade, event.currentTarget.checked)}
+                                        label={grade}
+                                        color={theme.other.contrast}
+                                    />
+                                ))}
+                            </Stack>
                         )}
                     </Box>
                     <Space h="md"></Space>
@@ -103,7 +128,7 @@ export function SteelGrade() {
                             </Button>
                             <Button
                                 color={theme.other.contrast}
-                                onClick={close}
+                                onClick={handleApply}
                             >
                                 Применить
                             </Button>

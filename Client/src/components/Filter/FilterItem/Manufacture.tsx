@@ -4,93 +4,70 @@ import { useState, useEffect, useMemo } from 'react';
 import { useFilters } from '../../../context/FilterContext';
 import { useProducts } from '../../../context/ProductContext';
 
-interface ProductType {
-    id: string;
-    name: string;
-}
-
-export function ProductType() {
+export function Manufacturer() {
     const [opened, { open, close }] = useDisclosure(false);
     const colorScheme = useComputedColorScheme();
-    const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+    const [manufacturers, setManufacturers] = useState<string[]>([]);
     const { filters, updateFilter } = useFilters();
     const { products, loading } = useProducts();
     const theme = useMantineTheme();
 
     // Локальный state для временных изменений
-    const [tempTypeIds, setTempTypeIds] = useState<string[]>([]);
-    const [tempTypeNames, setTempTypeNames] = useState<string[]>([]);
+    const [tempManufacturers, setTempManufacturers] = useState<string[]>([]);
 
     // Проверяем, выбран ли хотя бы один фильтр (из глобального состояния)
-    const isFilterActive = filters.type_ids.length > 0;
+    const isFilterActive = filters.manufacturers.length > 0;
 
-    // Извлекаем уникальные типы продукции из загруженных данных
-    const uniqueProductTypes = useMemo(() => {
-        const typesMap = new Map<string, ProductType>();
+    // Извлекаем уникальных производителей из загруженных данных
+    const uniqueManufacturers = useMemo(() => {
+        const manufacturersSet = new Set<string>();
 
         products.forEach(product => {
-            if (product.type_id && product.production_type) {
-                typesMap.set(product.type_id, {
-                    id: product.type_id,
-                    name: product.production_type
-                });
+            if (product.manufacturer) {
+                manufacturersSet.add(product.manufacturer);
             }
         });
 
-        return Array.from(typesMap.values());
+        return Array.from(manufacturersSet).sort();
     }, [products]);
 
-    // Обновляем список типов при открытии drawer
+    // Обновляем список производителей при открытии drawer
     useEffect(() => {
-        if (opened && uniqueProductTypes.length > 0) {
-            setProductTypes(uniqueProductTypes);
+        if (opened && uniqueManufacturers.length > 0) {
+            setManufacturers(uniqueManufacturers);
         }
-    }, [opened, uniqueProductTypes]);
+    }, [opened, uniqueManufacturers]);
 
     // Инициализируем временное состояние при открытии drawer
     useEffect(() => {
         if (opened) {
-            setTempTypeIds([...filters.type_ids]);
-            setTempTypeNames([...filters.type_names]);
+            setTempManufacturers([...filters.manufacturers]);
         }
-    }, [opened, filters.type_ids, filters.type_names]);
+    }, [opened, filters.manufacturers]);
 
-    const handleCheckboxChange = (typeId: string, checked: boolean) => {
-        const type = productTypes.find(t => t.id === typeId);
-        if (!type) return;
-
-        let newTypeIds: string[];
-        let newTypeNames: string[];
+    const handleCheckboxChange = (manufacturer: string, checked: boolean) => {
+        let newManufacturers: string[];
 
         if (checked) {
-            // Добавляем тип
-            newTypeIds = [...tempTypeIds, typeId];
-            newTypeNames = [...tempTypeNames, type.name];
+            newManufacturers = [...tempManufacturers, manufacturer];
         } else {
-            // Удаляем тип
-            newTypeIds = tempTypeIds.filter(id => id !== typeId);
-            newTypeNames = tempTypeNames.filter(name => name !== type.name);
+            newManufacturers = tempManufacturers.filter(m => m !== manufacturer);
         }
 
-        setTempTypeIds(newTypeIds);
-        setTempTypeNames(newTypeNames);
+        setTempManufacturers(newManufacturers);
     };
 
     const handleApply = () => {
-        updateFilter('type_ids', tempTypeIds);
-        updateFilter('type_names', tempTypeNames);
+        updateFilter('manufacturers', tempManufacturers);
         close();
     };
 
     const handleReset = () => {
-        setTempTypeIds([]);
-        setTempTypeNames([]);
+        setTempManufacturers([]);
     };
 
     const handleCancel = () => {
-        // Сбрасываем временные изменения при закрытии без применения
-        setTempTypeIds([...filters.type_ids]);
-        setTempTypeNames([...filters.type_names]);
+        setTempManufacturers([...filters.manufacturers]);
         close();
     };
 
@@ -110,14 +87,14 @@ export function ProductType() {
                 })}
             >
                 <Text fw={100} px="md" style={{ letterSpacing: '1px' }}>
-                    Тип продукции {isFilterActive && `(${filters.type_ids.length})`}
+                    Производитель {isFilterActive && `(${filters.manufacturers.length})`}
                 </Text>
             </Button>
 
             <Drawer
                 opened={opened}
                 onClose={handleCancel}
-                title="Тип продукции"
+                title="Производитель"
                 position="right"
                 size="md"
             >
@@ -127,12 +104,12 @@ export function ProductType() {
                             <Text>Загрузка...</Text>
                         ) : (
                             <Stack gap="sm">
-                                {productTypes.map((type) => (
+                                {manufacturers.map((manufacturer) => (
                                     <Checkbox
-                                        key={type.id}
-                                        checked={tempTypeIds.includes(type.id)}
-                                        onChange={(event) => handleCheckboxChange(type.id, event.currentTarget.checked)}
-                                        label={type.name}
+                                        key={manufacturer}
+                                        checked={tempManufacturers.includes(manufacturer)}
+                                        onChange={(event) => handleCheckboxChange(manufacturer, event.currentTarget.checked)}
+                                        label={manufacturer}
                                         color={theme.other.contrast}
                                     />
                                 ))}
