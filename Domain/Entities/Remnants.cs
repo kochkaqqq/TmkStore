@@ -1,10 +1,13 @@
-﻿namespace Domain.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace Domain.Entities
 {
 	public class Remnants
 	{
 		public int NomenclatureId { get; set; }
+		[JsonIgnore]
 		public Nomenclature Nomenclature { get; set; } = null!;
-		public int StockId { get; set; }
+		public Guid StockId { get; set; }
 		public Stock Stock { get; set; } = null!;
 		public decimal InStockT { get; set; }
 		public decimal InStockM { get; set; }

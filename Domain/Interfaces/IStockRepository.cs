@@ -1,10 +1,11 @@
-﻿using Domain.DAL.Stocks;
-using Domain.Entities;
+﻿using Domain.Entities;
 
 namespace Domain.Interfaces
 {
 	public interface IStockRepository 
 	{
-		Stock GetStock(Guid stockId);
+		Task<Stock> GetStock(Guid stockId, CancellationToken cancellationToken = default);
+
+		Task<ICollection<Stock>> GetStocks(CancellationToken cancellationToken = default);
 	}
 }

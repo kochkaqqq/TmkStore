@@ -4,7 +4,7 @@
 	{
 		public int NomenclatureId { get; set; }
 		public Nomenclature Nomenclature { get; set; } = null!;
-		public int StockId { get; set; }
+		public Guid StockId { get; set; }
 		public Stock Stock { get; set; } = null!;
 		public decimal PriceT {  get; set; }
 		public decimal PriceLimitT1 { get; set; }

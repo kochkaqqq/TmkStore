@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Entities;
 
 namespace Domain.Interfaces
 {
-	internal interface IRemnantsRepository
+	public interface IRemnantsRepository 
 	{
+		Task<Remnants> GetRemnants(int nomenclatureId, Guid stockId);
 	}
 }

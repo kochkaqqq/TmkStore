@@ -2,6 +2,8 @@
 {
 	public interface ITypeRepository
 	{
-		Entities.Type GetType(Guid typeId);
+		Task<Entities.Type> GetType(Guid typeId, CancellationToken cancellationToken);
+
+		Task<ICollection<Entities.Type>> GetAllTypes(CancellationToken cancellationToken);
 	}
 }

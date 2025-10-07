@@ -5,8 +5,10 @@ namespace Domain.Interfaces
 {
 	public interface INomenclatureRepository
 	{
-		ICollection<Nomenclature> GetCollection(GetNomenclatureListRequest request);
+		Task<ICollection<Nomenclature>> GetCollection(GetNomenclatureListRequest request, CancellationToken cancellationToken = default);
 
-		Nomenclature GetNomenclature(int nomenclatureId);
+		Task<Nomenclature> GetNomenclature(int nomenclatureId, CancellationToken cancellationToken = default);
+
+		Task<ICollection<Nomenclature>> GetAllNomenclatures(CancellationToken cancellationToken = default);
 	}
 }

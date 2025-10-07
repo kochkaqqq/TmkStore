@@ -1,4 +1,6 @@
 ﻿using Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
@@ -11,14 +13,18 @@ namespace Domain.Entities
 		public string ProductionType { get; set; } = null!;
 		public int IDFunctionType { get; set; }
 		public string Name { get; set; } = null!;
-		public ICollection<string>? Gosts { get; set; }
+		public ICollection<Gost> Gosts { get; set; }
 		public decimal FormOfLength { get; set; }
-		public string? Manufacturer { get; set; }
-		public string SteelGrade { get; set; } = null!;
+		public Manufacturer Manufacturer { get; set; } = null!;
+		public int ManufacturerId { get; set; }
+		public SteelGrade SteelGrade { get; set; } = null!;
+		public int SteelGradeId { get; set; }
 		public decimal Diameter { get; set; }
 		public decimal ProfileSize2 { get; set; }
 		public decimal PipeWallThickness { get; set; }
 		public NomenclatureStatus Status { get; set; }
 		public decimal Koef { get; set; }
+		[JsonPropertyName("Availability")]
+		public ICollection<Remnants> Remnants { get; set; } = null!;
 	}
 }

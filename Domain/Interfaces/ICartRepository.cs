@@ -1,19 +1,24 @@
-﻿using Domain.Entities;
+﻿using Domain.DAL.CartItems;
+using Domain.Entities;
 
 namespace Domain.Interfaces
 {
 	public interface ICartRepository
 	{
-		ICollection<CartItem> GetCartItems(int userId);
+		Task<Cart> GetCart(int userId, CancellationToken cancellationToken = default);
 
-		void ClearCart(int userId);
+		Task<Cart> GetCartNoTrack(int userId, CancellationToken cancellationToken = default);
 
-		void AddItemToCart(CartItem mCartItem);
+		Task<ICollection<CartItem>> GetCartItems(int userId, CancellationToken cancellationToken);
 
-		void ChangeQuantity(int cartId, int cartItemId, decimal quantityChange);
+		Task ClearCart(int userId, CancellationToken cancellationToken);
 
-		void DeleteCartItem(int cartId, int cartItemId);
+		Task AddItemToCart(AddItemToCartRequest request, CancellationToken cancellationToken);
 
-		void CountCartAmount(int cartId);
+		Task ChangeQuantity(ChangeQuantityCartItemRequest request, CancellationToken cancellationToken);
+
+		Task DeleteCartItem(DeleteCartItemRequest request, CancellationToken cancellationToken);
+
+		Task<decimal> CountCartAmount(int userId, CancellationToken cancellationToken);
 	}
 }

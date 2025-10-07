@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Entities;
+using Domain.Enums;
 
 namespace Domain.Interfaces
 {
-	internal interface IPriceRepository
+	public interface IPriceRepository
 	{
+		Task<Price> GetPrice(int nomenclatureId, Guid stockId);
+
+		Task<decimal> CountAmount (int nomenclatureId, Guid stockId, decimal quantity, ScaleType scale);
 	}
 }

@@ -1,13 +1,14 @@
-﻿using Domain.Entities;
+﻿using Domain.DAL.Orders;
+using Domain.Entities;
 
 namespace Domain.Interfaces
 {
 	public interface IOrderRepository
 	{
-		int AddOrder(int userId, int? cartId);
+		Task<int> AddOrder(CreateOrderRequest request, CancellationToken cancellationToken);
 
-		ICollection<Order> GetAllUserOrders(int userId);
+		Task<ICollection<Order>> GetAllUserOrders(int userId, CancellationToken cancellationToken);
 
-		Order GetOrder(int orderId);
+		Task<Order> GetOrder(int orderId, CancellationToken cancellationToken);
 	}
 }
