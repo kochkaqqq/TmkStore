@@ -24,7 +24,7 @@ export function Warehouse() {
     const [warehouses, setWarehouses] = useState<Stock[]>([]);
     const [expandedIds, setExpandedIds] = useState<string[]>([]);
     const { filters, updateFilter } = useFilters();
-    const { products, loading } = useProducts();
+    const { products } = useProducts();
     const theme = useMantineTheme();
 
     // Локальный state для временных изменений
@@ -154,65 +154,61 @@ export function Warehouse() {
             >
                 <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <Box style={{ flex: 1, overflowY: 'auto' }}>
-                        {loading ? (
-                            <Text>Загрузка...</Text>
-                        ) : (
-                            <Stack gap="md">
-                                {warehouses.map((warehouse) => (
-                                    <Box key={warehouse.id}>
-                                        <Group justify="space-between" wrap="nowrap">
-                                            <Checkbox
-                                                checked={tempStockIds.includes(warehouse.id)}
-                                                onChange={(event) => handleCheckboxChange(warehouse.id, event.currentTarget.checked)}
-                                                label={formatLabel(warehouse)}
-                                                color={theme.other.contrast}
-                                                style={{ flex: 1 }}
-                                            />
-                                            <Button
-                                                variant="subtle"
-                                                size="xs"
-                                                color={theme.other.contrast}
-                                                onClick={() => toggleExpand(warehouse.id)}
-                                            >
-                                                {tempExpandedIds.includes(warehouse.id) ? '▲' : '▼'}
-                                            </Button>
-                                        </Group>
-                                        <Collapse in={tempExpandedIds.includes(warehouse.id)}>
-                                            <Box
-                                                mt="xs"
-                                                ml="lg"
-                                                p="sm"
-                                                style={{
-                                                    borderLeft: `2px solid ${theme.other.contrast}`,
-                                                    backgroundColor: colorScheme === 'dark'
-                                                        ? theme.colors.dark[6]
-                                                        : theme.colors.gray[0]
-                                                }}
-                                            >
-                                                <Stack gap="xs">
-                                                    <Text size="sm" fw={500}>График работы:</Text>
-                                                    <Text size="sm" c="dimmed">{warehouse.schedule}</Text>
+                        <Stack gap="md">
+                            {warehouses.map((warehouse) => (
+                                <Box key={warehouse.id}>
+                                    <Group justify="space-between" wrap="nowrap">
+                                        <Checkbox
+                                            checked={tempStockIds.includes(warehouse.id)}
+                                            onChange={(event) => handleCheckboxChange(warehouse.id, event.currentTarget.checked)}
+                                            label={formatLabel(warehouse)}
+                                            color={theme.other.contrast}
+                                            style={{ flex: 1 }}
+                                        />
+                                        <Button
+                                            variant="subtle"
+                                            size="xs"
+                                            color={theme.other.contrast}
+                                            onClick={() => toggleExpand(warehouse.id)}
+                                        >
+                                            {tempExpandedIds.includes(warehouse.id) ? '▲' : '▼'}
+                                        </Button>
+                                    </Group>
+                                    <Collapse in={tempExpandedIds.includes(warehouse.id)}>
+                                        <Box
+                                            mt="xs"
+                                            ml="lg"
+                                            p="sm"
+                                            style={{
+                                                borderLeft: `2px solid ${theme.other.contrast}`,
+                                                backgroundColor: colorScheme === 'dark'
+                                                    ? theme.colors.dark[6]
+                                                    : theme.colors.gray[0]
+                                            }}
+                                        >
+                                            <Stack gap="xs">
+                                                <Text size="sm" fw={500}>График работы:</Text>
+                                                <Text size="sm" c="dimmed">{warehouse.schedule}</Text>
 
-                                                    <Text size="sm" fw={500} mt="xs">Способы оплаты:</Text>
-                                                    <Group gap="xs">
-                                                        {warehouse.cash_payment && (
-                                                            <Badge color="green" variant="light" size="sm">
-                                                                Наличные
-                                                            </Badge>
-                                                        )}
-                                                        {warehouse.card_payment && (
-                                                            <Badge color="blue" variant="light" size="sm">
-                                                                Карта
-                                                            </Badge>
-                                                        )}
-                                                    </Group>
-                                                </Stack>
-                                            </Box>
-                                        </Collapse>
-                                    </Box>
-                                ))}
-                            </Stack>
-                        )}
+                                                <Text size="sm" fw={500} mt="xs">Способы оплаты:</Text>
+                                                <Group gap="xs">
+                                                    {warehouse.cash_payment && (
+                                                        <Badge color="green" variant="light" size="sm">
+                                                            Наличные
+                                                        </Badge>
+                                                    )}
+                                                    {warehouse.card_payment && (
+                                                        <Badge color="blue" variant="light" size="sm">
+                                                            Карта
+                                                        </Badge>
+                                                    )}
+                                                </Group>
+                                            </Stack>
+                                        </Box>
+                                    </Collapse>
+                                </Box>
+                            ))}
+                        </Stack>
                     </Box>
                     <Space h="md"></Space>
                     <Box pt="md" style={{ borderTop: `1px solid ${colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}` }}>

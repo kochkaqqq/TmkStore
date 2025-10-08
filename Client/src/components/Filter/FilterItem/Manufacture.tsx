@@ -9,7 +9,7 @@ export function Manufacturer() {
     const colorScheme = useComputedColorScheme();
     const [manufacturers, setManufacturers] = useState<string[]>([]);
     const { filters, updateFilter } = useFilters();
-    const { products, loading } = useProducts();
+    const { products } = useProducts();
     const theme = useMantineTheme();
 
     // Локальный state для временных изменений
@@ -100,21 +100,17 @@ export function Manufacturer() {
             >
                 <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <Box style={{ flex: 1, overflowY: 'auto' }}>
-                        {loading ? (
-                            <Text>Загрузка...</Text>
-                        ) : (
-                            <Stack gap="sm">
-                                {manufacturers.map((manufacturer) => (
-                                    <Checkbox
-                                        key={manufacturer}
-                                        checked={tempManufacturers.includes(manufacturer)}
-                                        onChange={(event) => handleCheckboxChange(manufacturer, event.currentTarget.checked)}
-                                        label={manufacturer}
-                                        color={theme.other.contrast}
-                                    />
-                                ))}
-                            </Stack>
-                        )}
+                        <Stack gap="sm">
+                            {manufacturers.map((manufacturer) => (
+                                <Checkbox
+                                    key={manufacturer}
+                                    checked={tempManufacturers.includes(manufacturer)}
+                                    onChange={(event) => handleCheckboxChange(manufacturer, event.currentTarget.checked)}
+                                    label={manufacturer}
+                                    color={theme.other.contrast}
+                                />
+                            ))}
+                        </Stack>
                     </Box>
                     <Space h="md"></Space>
                     <Box pt="md" style={{ borderTop: `1px solid ${colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}` }}>

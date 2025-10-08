@@ -9,7 +9,7 @@ export function Gost() {
     const colorScheme = useComputedColorScheme();
     const [gosts, setGosts] = useState<string[]>([]);
     const { filters, updateFilter } = useFilters();
-    const { products, loading } = useProducts();
+    const { products } = useProducts();
     const theme = useMantineTheme();
 
     // Локальный state для временных изменений
@@ -100,21 +100,17 @@ export function Gost() {
             >
                 <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <Box style={{ flex: 1, overflowY: 'auto' }}>
-                        {loading ? (
-                            <Text>Загрузка...</Text>
-                        ) : (
-                            <Stack gap="sm">
-                                {gosts.map((gost) => (
-                                    <Checkbox
-                                        key={gost}
-                                        checked={tempGosts.includes(gost)}
-                                        onChange={(event) => handleCheckboxChange(gost, event.currentTarget.checked)}
-                                        label={gost}
-                                        color={theme.other.contrast}
-                                    />
-                                ))}
-                            </Stack>
-                        )}
+                        <Stack gap="sm">
+                            {gosts.map((gost) => (
+                                <Checkbox
+                                    key={gost}
+                                    checked={tempGosts.includes(gost)}
+                                    onChange={(event) => handleCheckboxChange(gost, event.currentTarget.checked)}
+                                    label={gost}
+                                    color={theme.other.contrast}
+                                />
+                            ))}
+                        </Stack>
                     </Box>
                     <Space h="md"></Space>
                     <Box pt="md" style={{ borderTop: `1px solid ${colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}` }}>
