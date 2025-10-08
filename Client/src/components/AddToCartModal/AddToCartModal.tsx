@@ -1,7 +1,8 @@
-import { Modal, Stack, Text, NumberInput, Select, Button, Group, Divider, Paper } from '@mantine/core';
+import { Modal, Stack, Text, NumberInput, Select, Button, Group, Divider, Paper, Alert } from '@mantine/core';
 import { useState, useMemo, useEffect } from 'react';
 import { Product } from '../../utils/product.types';
 import { useFilters } from '../../context/FilterContext';
+import { IconAlertCircle } from '@tabler/icons-react';
 
 interface AddToCartModalProps {
     opened: boolean;
@@ -12,7 +13,8 @@ interface AddToCartModalProps {
 export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps) {
     const { filters } = useFilters();
     const [selectedStock, setSelectedStock] = useState<string>('');
-    const [quantity, setQuantity] = useState<number>(0);
+    const [quantity, setQuantity] = useState<number | ''>(0); // Изменено: может быть пустой строкой
+    const [inputError, setInputError] = useState<string>('');
 
     // Получаем выбранную доступность
     const selectedAvailability = useMemo(() => {
@@ -39,9 +41,31 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
             : selectedAvailability.avg_tube_length;
     }, [selectedAvailability, unit]);
 
+    // Функция для округления количества до ближайшего кратного шага
+    const roundToStep = (value: number, step: number): number => {
+        if (step === 0) return value;
+        return Math.round(value / step) * step;
+    };
+
+    // Проверка валидности количества
+    const isValidQuantity = useMemo(() => {
+        // Если количество пустое или 0, возвращаем false
+        if (quantity === '' || quantity === 0 || quantity <= 0) return false;
+
+        const numQuantity = Number(quantity);
+
+        if (numQuantity > maxQuantity) return false;
+
+        // Проверяем, что количество кратно шагу (с учетом погрешности)
+        const remainder = Math.abs((numQuantity % minStep) / minStep);
+        const isMultiple = remainder < 0.001 || remainder > 0.999;
+
+        return isMultiple;
+    }, [quantity, maxQuantity, minStep]);
+
     // Расчет цены с учетом скидок
     const calculatePrice = useMemo(() => {
-        if (!selectedAvailability || quantity <= 0) {
+        if (!selectedAvailability || !isValidQuantity || quantity === '' || quantity === 0) {
             return {
                 basePrice: 0,
                 discountedPrice: 0,
@@ -52,6 +76,7 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
             };
         }
 
+        const numQuantity = Number(quantity);
         const pricing = selectedAvailability.pricing;
         const discounts = unit === 'tons' ? pricing.ton_discounts : pricing.meter_discounts;
         const basePrice = unit === 'tons' ? pricing.price_per_ton : pricing.price_per_meter;
@@ -59,13 +84,13 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
         // Найти подходящую скидку
         let discountedPrice = basePrice;
         for (let i = discounts.length - 1; i >= 0; i--) {
-            if (quantity >= discounts[i].min_quantity) {
+            if (numQuantity >= discounts[i].min_quantity) {
                 discountedPrice = discounts[i].price;
                 break;
             }
         }
 
-        const totalWithoutVat = discountedPrice * quantity;
+        const totalWithoutVat = discountedPrice * numQuantity;
         const vat = totalWithoutVat * (pricing.vat_rate / 100);
         const totalWithVat = totalWithoutVat + vat;
         const discount = ((basePrice - discountedPrice) / basePrice) * 100;
@@ -78,7 +103,7 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
             totalWithVat,
             discount
         };
-    }, [selectedAvailability, quantity, unit]);
+    }, [selectedAvailability, quantity, unit, isValidQuantity]);
 
     // Инициализация первого склада
     useEffect(() => {
@@ -89,18 +114,72 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
 
     // Сброс количества при смене склада или единицы
     useEffect(() => {
-        setQuantity(0);
+        setQuantity(''); // Сброс в пустую строку
+        setInputError('');
     }, [selectedStock, unit]);
 
+    // Обработка изменения количества
+    const handleQuantityChange = (value: number | string) => {
+        // Если пустое поле
+        if (value === '' || value === undefined) {
+            setQuantity('');
+            setInputError('');
+            return;
+        }
+
+        const numValue = Number(value);
+
+        // Если не число или NaN
+        if (isNaN(numValue)) {
+            setQuantity('');
+            setInputError('');
+            return;
+        }
+
+        setQuantity(numValue);
+
+        // Проверка валидности
+        if (numValue <= 0) {
+            setInputError('');
+            return;
+        }
+
+        if (numValue > maxQuantity) {
+            setInputError(`Превышено доступное количество (${maxQuantity.toFixed(3)} ${unitLabel})`);
+            return;
+        }
+
+        // Проверка кратности шагу
+        const remainder = Math.abs((numValue % minStep) / minStep);
+        const isMultiple = remainder < 0.001 || remainder > 0.999;
+
+        if (!isMultiple) {
+            const nearest = roundToStep(numValue, minStep);
+            setInputError(
+                `Количество должно быть кратно ${minStep.toFixed(3)} ${unitLabel}. Ближайшее значение: ${nearest.toFixed(3)} ${unitLabel}`
+            );
+        } else {
+            setInputError('');
+        }
+    };
+
+    // Кнопка "Исправить количество"
+    const handleFixQuantity = () => {
+        const numQuantity = Number(quantity) || 0;
+        const fixed = roundToStep(numQuantity, minStep);
+        setQuantity(Math.min(fixed, maxQuantity));
+        setInputError('');
+    };
+
     const handleAddToCart = () => {
-        if (!selectedAvailability || quantity <= 0) return;
+        if (!selectedAvailability || !isValidQuantity || quantity === '' || quantity === 0) return;
 
         const cartItem = {
             productId: product.id,
             productName: product.name,
             stockId: selectedStock,
             stockName: selectedAvailability.stock.city,
-            quantity,
+            quantity: Number(quantity),
             unit,
             pricePerUnit: calculatePrice.discountedPrice,
             totalPrice: calculatePrice.totalWithVat,
@@ -150,12 +229,12 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
                         <Group justify="space-between">
                             <Text size="sm">В наличии:</Text>
                             <Text size="sm" fw={600}>
-                                {maxQuantity.toFixed(2)} {unitLabel}
+                                {maxQuantity.toFixed(3)} {unitLabel}
                             </Text>
                         </Group>
                         <Group justify="space-between" mt="xs">
                             <Text size="xs" c="dimmed">Средняя длина трубы:</Text>
-                            <Text size="xs">{selectedAvailability.avg_tube_length.toFixed(2)} м</Text>
+                            <Text size="xs">{selectedAvailability.avg_tube_length.toFixed(3)} м</Text>
                         </Group>
                         <Group justify="space-between">
                             <Text size="xs" c="dimmed">Средний вес трубы:</Text>
@@ -167,19 +246,39 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
                 {/* Ввод количества */}
                 <NumberInput
                     label={`Количество (${unitLabel})`}
-                    placeholder={`Введите количество в ${unitLabel === 'т' ? 'тоннах' : 'метрах'}`}
+                    placeholder={`Кратно ${minStep.toFixed(3)} ${unitLabel}`}
                     value={quantity}
-                    onChange={(value) => setQuantity(Number(value) || 0)}
+                    onChange={handleQuantityChange}
                     min={0}
                     max={maxQuantity}
                     step={minStep}
                     decimalScale={3}
                     required
-                    description={`Минимальный шаг: ${minStep.toFixed(3)} ${unitLabel} (одна труба)`}
+                    error={inputError}
+                    description={`Шаг: ${minStep.toFixed(3)} ${unitLabel} (одна труба). Максимум: ${maxQuantity.toFixed(3)} ${unitLabel}`}
                 />
 
+                {/* Кнопка исправления */}
+                {inputError && quantity !== '' && quantity !== 0 && (
+                    <Button
+                        variant="light"
+                        color="#ff5106"
+                        size="xs"
+                        onClick={handleFixQuantity}
+                    >
+                        Округлить до {roundToStep(Number(quantity) || 0, minStep).toFixed(3)} {unitLabel}
+                    </Button>
+                )}
+
+                {/* Предупреждение о некратном значении */}
+                {inputError && quantity !== '' && quantity !== 0 && (
+                    <Alert icon={<IconAlertCircle size={16} />} color="orange" variant="light">
+                        {inputError}
+                    </Alert>
+                )}
+
                 {/* Расчет цены */}
-                {quantity > 0 && selectedAvailability && (
+                {quantity !== '' && quantity !== 0 && selectedAvailability && isValidQuantity && (
                     <>
                         <Divider />
                         <Paper p="sm" withBorder>
@@ -250,7 +349,7 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
                     <Button
                         onClick={handleAddToCart}
                         color="#ff5106"
-                        disabled={!selectedStock || quantity <= 0 || quantity > maxQuantity}
+                        disabled={!selectedStock || !isValidQuantity || !!inputError}
                     >
                         Добавить в корзину
                     </Button>

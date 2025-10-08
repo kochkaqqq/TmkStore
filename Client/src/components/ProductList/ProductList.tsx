@@ -1,16 +1,13 @@
 import { ProductCard } from '../ProductCard/ProductCard';
-import { Title, Loader, Center, Text, useComputedColorScheme } from '@mantine/core';
+import { Title } from '@mantine/core';
 import { useFilters } from '../../context/FilterContext';
 import { useProducts } from '../../context/ProductContext';
 import { Product } from '../../utils/product.types';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 
 export function ProductList() {
     const { filters } = useFilters();
     const { products } = useProducts();
-    const [isLoading, setIsLoading] = useState(false);
-    const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-    const colorScheme = useComputedColorScheme();
 
     // Фильтрация продуктов на основе выбранных фильтров
     const filteredProducts = useMemo(() => {
@@ -67,27 +64,6 @@ export function ProductList() {
         });
     }, [products, filters]);
 
-    useEffect(() => {
-        setIsLoading(true);
-        const timer = setTimeout(() => {
-            setDisplayedProducts(filteredProducts);
-            setIsLoading(false);
-        }, 100);
-
-        return () => clearTimeout(timer);
-    }, [filteredProducts]);
-
-    if (isLoading) {
-        return (
-            <Center style={{ marginTop: '3rem', minHeight: '300px' }}>
-                <div style={{ textAlign: 'center' }}>
-                    <Loader size="md" color={colorScheme === 'dark' ? 'gray.0' : 'dark.6'} />
-                    <Text mt="md" c="dimmed">Поиск товаров...</Text>
-                </div>
-            </Center>
-        );
-    }
-
     return (
         <div
             style={{
@@ -99,12 +75,10 @@ export function ProductList() {
                 paddingRight: '1rem',
             }}
         >
-            {displayedProducts.length > 0 ? (
-                displayedProducts.map((product) => {
-                    // Получаем первую доступность для отображения
+            {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => {
                     const firstAvailability = product.availability[0];
 
-                    // Определяем количество и цену в зависимости от выбранной единицы
                     const stockQuantity = filters.unit === 'tons'
                         ? firstAvailability?.in_stock_tons || 0
                         : firstAvailability?.in_stock_meters || 0;

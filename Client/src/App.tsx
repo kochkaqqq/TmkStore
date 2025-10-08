@@ -1,10 +1,10 @@
 import '@mantine/core/styles.css';
-import { MantineProvider, createTheme, useMantineTheme, useComputedColorScheme, Loader, Center, Text } from '@mantine/core';
+import { MantineProvider, createTheme, useMantineTheme, useComputedColorScheme } from '@mantine/core';
 import { Router } from './Router';
 import { useEffect, useState } from 'react';
 import { init, themeParams, isThemeParamsDark, backButton, miniApp } from "@telegram-apps/sdk";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ProductProvider, useProducts } from './context/ProductContext';
+import { ProductProvider } from './context/ProductContext';
 
 const CONTRAST = '#ff5106';
 const ON_CONTRAST = '#ffffff';
@@ -44,33 +44,6 @@ function TelegramColors() {
     return null;
 }
 
-function AppLoader({ children }: { children: React.ReactNode }) {
-    const { loading, error } = useProducts();
-
-    if (loading) {
-        return (
-            <Center style={{ minHeight: '100vh' }}>
-                <div style={{ textAlign: 'center' }}>
-                    <Text mt="md" c="dimmed">Загрузка данных...</Text>
-                </div>
-            </Center>
-        );
-    }
-
-    if (error) {
-        return (
-            <Center style={{ minHeight: '100vh' }}>
-                <div style={{ textAlign: 'center' }}>
-                    <Text c="red" size="lg" fw={600}>Ошибка загрузки</Text>
-                    <Text mt="sm" c="dimmed">{error}</Text>
-                </div>
-            </Center>
-        );
-    }
-
-    return <>{children}</>;
-}
-
 function AppContent() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -97,9 +70,7 @@ function AppContent() {
     return (
         <>
             <TelegramColors />
-            <AppLoader>
-                <Router />
-            </AppLoader>
+            <Router />
         </>
     );
 }
