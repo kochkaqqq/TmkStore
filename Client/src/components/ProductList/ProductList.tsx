@@ -103,7 +103,7 @@ export function ProductList() {
                 displayedProducts.map((product) => {
                     // Получаем первую доступность для отображения
                     const firstAvailability = product.availability[0];
-                    
+
                     // Определяем количество и цену в зависимости от выбранной единицы
                     const stockQuantity = filters.unit === 'tons'
                         ? firstAvailability?.in_stock_tons || 0
@@ -120,17 +120,11 @@ export function ProductList() {
                     return (
                         <ProductCard
                             key={product.id}
-                            id={product.id}
-                            description={product.name}
-                            ntd={product.gost}
-                            thickness={`${product.wall_thickness} мм`}
-                            size={`${product.diameter} мм`}
-                            steelGrade={product.steel_grade}
-                            factory={product.manufacturer}
-                            inStock={inStock}
-                            priceWithVat={priceWithVat}
-                            stockQuantity={stockQuantity}
+                            product={product}
                             unit={filters.unit}
+                            displayedPrice={priceWithVat}
+                            displayedQuantity={stockQuantity}
+                            inStock={inStock}
                         />
                     );
                 })

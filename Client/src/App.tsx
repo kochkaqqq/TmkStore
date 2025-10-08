@@ -51,7 +51,6 @@ function AppLoader({ children }: { children: React.ReactNode }) {
         return (
             <Center style={{ minHeight: '100vh' }}>
                 <div style={{ textAlign: 'center' }}>
-                    <Loader size="xl" type="dots" />
                     <Text mt="md" c="dimmed">Загрузка данных...</Text>
                 </div>
             </Center>
