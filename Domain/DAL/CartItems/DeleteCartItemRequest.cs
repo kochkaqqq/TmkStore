@@ -2,8 +2,8 @@
 {
 	public class DeleteCartItemRequest
 	{
-		public int UserId { get; set; }
-		public int NomenclatureId { get; set; }
+		public Guid UserId { get; set; }
+		public string NomenclatureId { get; set; } = null!;
 		public Guid StockId { get; set; }
 	}
 }

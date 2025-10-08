@@ -15,7 +15,7 @@ namespace Infrastucture.Application
 			_dbContext = dbContext;
 		}
 
-		public async Task<User> GetUser(int userId)
+		public async Task<User> GetUser(Guid userId)
 		{
 			return await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == userId) ?? throw new NotFound();
 		}

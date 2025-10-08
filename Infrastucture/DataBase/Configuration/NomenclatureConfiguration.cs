@@ -26,15 +26,12 @@ namespace Infrastucture.DataBase.Configuration
 				.IsRequired()
 				.HasMaxLength(200);
 
-			builder.Property(n => n.IDFunctionType)
-				.IsRequired();
-
 			builder.Property(n => n.Name)
 				.IsRequired()
 				.HasMaxLength(500);
 
 			builder.Property(n => n.FormOfLength)
-				.HasColumnType("numeric(18,3)")
+				.HasColumnType("text")
 				.IsRequired();
 
 			builder.Property(n => n.Diameter)
@@ -63,11 +60,11 @@ namespace Infrastucture.DataBase.Configuration
 
 			builder.HasMany(n => n.Gosts)
 				.WithMany()
-				.UsingEntity(j => j.ToTable("NomenclaturesGosts"));
+				.UsingEntity(j => j.ToTable("NomenclatureGosts"));
 
-			builder.HasOne(n => n.SteelGrade).WithMany(s => s.Nomenclatures).IsRequired().HasForeignKey(n => n.ManufacturerId).OnDelete(DeleteBehavior.Restrict);
+			builder.HasOne(n => n.SteelGrade).WithMany(s => s.Nomenclatures).IsRequired().HasForeignKey(n => n.SteelGradeId).OnDelete(DeleteBehavior.Restrict);
 
-			builder.HasOne(n => n.Manufacturer).WithMany(m => m.Nomenclatures).HasForeignKey(n => n.SteelGradeId).OnDelete(DeleteBehavior.Restrict);
+			builder.HasOne(n => n.Manufacturer).WithMany(m => m.Nomenclatures).HasForeignKey(n => n.ManufactureId).OnDelete(DeleteBehavior.Restrict);
 		}
 	}
 }

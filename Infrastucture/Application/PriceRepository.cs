@@ -16,7 +16,7 @@ namespace Infrastucture.Application
 			_dbContext = dbContext;
 		}
 
-		public async Task<decimal> CountAmount(int nomenclatureId, Guid stockId, decimal quantity, ScaleType scale)
+		public async Task<decimal> CountAmount(string nomenclatureId, Guid stockId, decimal quantity, ScaleType scale)
 		{
 			var price = await GetPrice(nomenclatureId, stockId);
 
@@ -38,7 +38,7 @@ namespace Infrastucture.Application
 			}	
 		}
 
-		public async Task<Price> GetPrice(int nomenclatureId, Guid stockId)
+		public async Task<Price> GetPrice(string nomenclatureId, Guid stockId)
 		{
 			var price = await _dbContext.Prices
 				.AsNoTracking()

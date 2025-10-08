@@ -18,7 +18,7 @@ namespace Infrastucture.Application
 			_priceRepository = priceRepository;
 		}
 
-		public async Task<int> AddOrder(CreateOrderRequest request, CancellationToken cancellationToken)
+		public async Task<Guid> AddOrder(CreateOrderRequest request, CancellationToken cancellationToken)
 		{
 			var user = new User()
 			{
@@ -63,12 +63,12 @@ namespace Infrastucture.Application
 			return order.Id;
 		}
 
-		public async Task<ICollection<Order>> GetAllUserOrders(int userId, CancellationToken cancellationToken)
+		public async Task<ICollection<Order>> GetAllUserOrders(Guid userId, CancellationToken cancellationToken)
 		{
 			return await _dbContext.Orders.AsNoTracking().Where(o => o.User.UserId == userId).ToArrayAsync(cancellationToken);
 		}
 
-		public async Task<Order> GetOrder(int orderId, CancellationToken cancellationToken)
+		public async Task<Order> GetOrder(Guid orderId, CancellationToken cancellationToken)
 		{
 			return await _dbContext.Orders.FirstOrDefaultAsync(o => o.Id == orderId)
 				?? throw new NotFound();

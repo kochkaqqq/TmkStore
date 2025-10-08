@@ -50,7 +50,7 @@ namespace Infrastucture.Application
 			return await query.ToArrayAsync(cancellationToken);
 		}
 
-		public async Task<Nomenclature> GetNomenclature(int nomenclatureId, CancellationToken cancellationToken)
+		public async Task<Nomenclature> GetNomenclature(string nomenclatureId, CancellationToken cancellationToken)
 		{
 			return await _dbContext.Nomenclatures
 				.AsNoTracking()

@@ -21,7 +21,7 @@ namespace WebApi.Controllers
 		}
 
 		[HttpGet("/products/{product_id}")]
-		public async Task<IActionResult> Get(int product_id, CancellationToken cancellationToken)
+		public async Task<IActionResult> Get(string product_id, CancellationToken cancellationToken)
 		{
 			var res = await _nomenclatureRepository.GetNomenclature(product_id, cancellationToken);
 			return Ok(res);

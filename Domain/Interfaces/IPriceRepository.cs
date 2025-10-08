@@ -5,8 +5,8 @@ namespace Domain.Interfaces
 {
 	public interface IPriceRepository
 	{
-		Task<Price> GetPrice(int nomenclatureId, Guid stockId);
+		Task<Price> GetPrice(string nomenclatureId, Guid stockId);
 
-		Task<decimal> CountAmount (int nomenclatureId, Guid stockId, decimal quantity, ScaleType scale);
+		Task<decimal> CountAmount (string nomenclatureId, Guid stockId, decimal quantity, ScaleType scale);
 	}
 }

@@ -15,7 +15,7 @@ namespace Infrastucture.Application
 			_dbContext = dbContext;
 		}
 
-		public async Task<Remnants> GetRemnants(int nomenclatureId, Guid stockId)
+		public async Task<Remnants> GetRemnants(string nomenclatureId, Guid stockId)
 		{
 			return await _dbContext.Remnants.FirstOrDefaultAsync(r => r.NomenclatureId == nomenclatureId && r.StockId == stockId)
 				?? throw new NotFound();

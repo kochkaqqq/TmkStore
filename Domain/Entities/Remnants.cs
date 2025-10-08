@@ -4,7 +4,7 @@ namespace Domain.Entities
 {
 	public class Remnants
 	{
-		public int NomenclatureId { get; set; }
+		public string NomenclatureId { get; set; } = null!;
 		[JsonIgnore]
 		public Nomenclature Nomenclature { get; set; } = null!;
 		public Guid StockId { get; set; }

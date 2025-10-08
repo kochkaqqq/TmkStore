@@ -16,7 +16,6 @@ namespace Infrastucture.DataBase.Configuration
 				.ValueGeneratedOnAdd();
 
 			builder.Property(s => s.City)
-				.IsRequired()
 				.HasMaxLength(100);
 
 			builder.Property(s => s.StockName)

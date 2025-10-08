@@ -73,14 +73,14 @@ namespace Infrastucture.Application
 			await _dbContext.SaveChangesAsync(cancellationToken);
 		}
 
-		public async Task ClearCart(int userId, CancellationToken cancellationToken)
+		public async Task ClearCart(Guid userId, CancellationToken cancellationToken)
 		{
 			var cart = await GetCart(userId, cancellationToken);
 			_dbContext.Carts.Remove(cart);
 			await _dbContext.SaveChangesAsync(cancellationToken);
 		}
 
-		public async Task<decimal> CountCartAmount(int userId, CancellationToken cancellationToken)
+		public async Task<decimal> CountCartAmount(Guid userId, CancellationToken cancellationToken)
 		{
 			var cart = await GetCartNoTrack(userId, cancellationToken);
 			decimal res = 0;
@@ -100,7 +100,7 @@ namespace Infrastucture.Application
 			await _dbContext.SaveChangesAsync(cancellationToken);
 		}
 
-		public async Task<Cart> GetCart(int userId, CancellationToken cancellationToken = default)
+		public async Task<Cart> GetCart(Guid userId, CancellationToken cancellationToken = default)
 		{
 			var cart = await _dbContext.Carts
 				.Include(c => c.Items)
@@ -121,7 +121,7 @@ namespace Infrastucture.Application
 			return cart;
 		}
 
-		public async Task<Cart> GetCartNoTrack(int userId, CancellationToken cancellationToken = default)
+		public async Task<Cart> GetCartNoTrack(Guid userId, CancellationToken cancellationToken = default)
 		{
 			var cart = await _dbContext.Carts
 				.AsNoTracking()
@@ -143,7 +143,7 @@ namespace Infrastucture.Application
 			return cart;
 		}
 
-		public async Task<ICollection<CartItem>> GetCartItems(int userId, CancellationToken cancellationToken)
+		public async Task<ICollection<CartItem>> GetCartItems(Guid userId, CancellationToken cancellationToken)
 		{
 			var cart = await GetCart(userId);
 

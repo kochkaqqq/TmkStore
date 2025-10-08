@@ -5,10 +5,10 @@ namespace Domain.Interfaces
 {
 	public interface IOrderRepository
 	{
-		Task<int> AddOrder(CreateOrderRequest request, CancellationToken cancellationToken);
+		Task<Guid> AddOrder(CreateOrderRequest request, CancellationToken cancellationToken);
 
-		Task<ICollection<Order>> GetAllUserOrders(int userId, CancellationToken cancellationToken);
+		Task<ICollection<Order>> GetAllUserOrders(Guid userId, CancellationToken cancellationToken);
 
-		Task<Order> GetOrder(int orderId, CancellationToken cancellationToken);
+		Task<Order> GetOrder(Guid orderId, CancellationToken cancellationToken);
 	}
 }

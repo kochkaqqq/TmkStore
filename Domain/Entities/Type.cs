@@ -4,6 +4,6 @@
 	{
 		public Guid IDType { get; set; }
 		public string PipeType { get; set; } = null!;
-		public string IDParentType { get; set; } = null!;
+		public string? IDParentType { get; set; } = null;
 	}
 }

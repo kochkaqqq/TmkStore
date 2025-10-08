@@ -2,7 +2,7 @@
 {
 	public class Price
 	{
-		public int NomenclatureId { get; set; }
+		public string NomenclatureId { get; set; } = null!;
 		public Nomenclature Nomenclature { get; set; } = null!;
 		public Guid StockId { get; set; }
 		public Stock Stock { get; set; } = null!;

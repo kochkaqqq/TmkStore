@@ -4,6 +4,6 @@ namespace Domain.Interfaces
 {
 	public interface IRemnantsRepository 
 	{
-		Task<Remnants> GetRemnants(int nomenclatureId, Guid stockId);
+		Task<Remnants> GetRemnants(string nomenclatureId, Guid stockId);
 	}
 }

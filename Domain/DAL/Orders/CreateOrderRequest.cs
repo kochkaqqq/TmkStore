@@ -17,7 +17,7 @@ namespace Domain.DAL.Orders
 
 	public class Item
 	{
-		public int NomenclatureId { get; set; }
+		public string NomenclatureId { get; set; } = null!;
 		public Guid StockId { get; set; }
 		public ScaleType ScaleType { get; set; }
 		public decimal Quantity { get; set; }

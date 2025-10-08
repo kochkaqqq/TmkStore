@@ -19,7 +19,6 @@ namespace Infrastucture.DataBase.Configuration
 				.HasMaxLength(200);
 
 			builder.Property(t => t.IDParentType)
-				.IsRequired()
 				.HasMaxLength(50);
 		}
 	}
