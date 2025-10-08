@@ -3,6 +3,8 @@ import { MantineProvider, createTheme, useMantineTheme, useComputedColorScheme }
 import { Router } from './Router';
 import { useEffect, useState } from 'react';
 import { init, themeParams, isThemeParamsDark, backButton, miniApp } from "@telegram-apps/sdk";
+import { Notifications } from '@mantine/notifications';
+import { ModalsProvider } from '@mantine/modals';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ProductProvider } from './context/ProductContext';
 
@@ -95,9 +97,12 @@ export default function App() {
 
     return (
         <MantineProvider theme={theme} forceColorScheme={colorScheme}>
-            <ProductProvider>
-                <AppContent />
-            </ProductProvider>
+            <Notifications position="top-center" />
+            <ModalsProvider>
+                <ProductProvider>
+                    <AppContent />
+                </ProductProvider>
+            </ModalsProvider>
         </MantineProvider>
     );
 }

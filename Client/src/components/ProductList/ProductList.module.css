@@ -1,0 +1,38 @@
+/* ProductList.module.css */
+.wrapper {
+  width: 100%;
+  padding: 0 1rem;
+  margin-top: 1.5rem;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+.emptyMessage {
+  width: 100%;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* Медиа-запросы для разных размеров экрана */
+@media (max-width: 768px) {
+  .productsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1201px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

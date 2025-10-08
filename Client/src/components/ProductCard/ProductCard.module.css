@@ -1,11 +1,13 @@
 .card {
-  width: 420px;
-  margin: 10px;
+  width: 100%; /* Изменено с 420px на 100% */
   border-radius: 16px;
   color: light-dark(#1a1a1a, #ffffff);
   border: 0.2px solid light-dark(#e0e0e0, #ffffff);
   background-color: inherit;
   box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .titleLevel1 {
@@ -21,6 +23,7 @@
   font-weight: 600;
   margin-bottom: 8px;
   gap: 20px;
+  flex-wrap: wrap; /* Добавлено для переноса на маленьких экранах */
 }
 
 .labelText {
@@ -52,6 +55,7 @@
   gap: 20px;
   font-weight: 500;
   color: #a0a0a0;
+  flex-wrap: wrap; /* Добавлено для переноса */
 }
 
 .titleLevel3Row .valueText {
@@ -64,6 +68,7 @@
   margin-bottom: 6px;
   gap: 12px;
   font-weight: 600;
+  flex-wrap: wrap; /* Добавлено для переноса */
 }
 
 .inStock {
@@ -90,7 +95,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: auto; /* Изменено с 16px на auto для прижатия к низу */
+  padding-top: 16px;
 }
 
 .buttonOval {
@@ -107,4 +113,21 @@
   background-color: #ff5106;
   color: #ffffff;
   border-color: #ff5106;
+}
+
+/* Медиа-запросы для адаптивности текста */
+@media (max-width: 480px) {
+  .titleLevel1 {
+    font-size: 1.4rem;
+  }
+
+  .priceText {
+    font-size: 1.4rem;
+  }
+
+  .titleLevel2Row,
+  .titleLevel3Row,
+  .titleLevel4Row {
+    gap: 10px;
+  }
 }

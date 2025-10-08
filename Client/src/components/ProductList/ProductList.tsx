@@ -4,6 +4,7 @@ import { useFilters } from '../../context/FilterContext';
 import { useProducts } from '../../context/ProductContext';
 import { Product } from '../../utils/product.types';
 import { useMemo } from 'react';
+import classes from './ProductList.module.css';
 
 export function ProductList() {
     const { filters } = useFilters();
@@ -65,45 +66,38 @@ export function ProductList() {
     }, [products, filters]);
 
     return (
-        <div
-            style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 16,
-                marginTop: '1.5rem',
-                paddingLeft: '1rem',
-                paddingRight: '1rem',
-            }}
-        >
+        <div className={classes.wrapper}>
             {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => {
-                    const firstAvailability = product.availability[0];
+                <div className={classes.productsGrid}>
+                    {filteredProducts.map((product) => {
+                        const firstAvailability = product.availability[0];
 
-                    const stockQuantity = filters.unit === 'tons'
-                        ? firstAvailability?.in_stock_tons || 0
-                        : firstAvailability?.in_stock_meters || 0;
+                        const stockQuantity = filters.unit === 'tons'
+                            ? firstAvailability?.in_stock_tons || 0
+                            : firstAvailability?.in_stock_meters || 0;
 
-                    const priceWithVat = filters.unit === 'tons'
-                        ? firstAvailability?.pricing.price_per_ton || 0
-                        : firstAvailability?.pricing.price_per_meter || 0;
+                        const priceWithVat = filters.unit === 'tons'
+                            ? firstAvailability?.pricing.price_per_ton || 0
+                            : firstAvailability?.pricing.price_per_meter || 0;
 
-                    const inStock = product.availability.some(
-                        avail => avail.in_stock_tons > 0 || avail.in_stock_meters > 0
-                    );
+                        const inStock = product.availability.some(
+                            avail => avail.in_stock_tons > 0 || avail.in_stock_meters > 0
+                        );
 
-                    return (
-                        <ProductCard
-                            key={product.id}
-                            product={product}
-                            unit={filters.unit}
-                            displayedPrice={priceWithVat}
-                            displayedQuantity={stockQuantity}
-                            inStock={inStock}
-                        />
-                    );
-                })
+                        return (
+                            <ProductCard
+                                key={product.id}
+                                product={product}
+                                unit={filters.unit}
+                                displayedPrice={priceWithVat}
+                                displayedQuantity={stockQuantity}
+                                inStock={inStock}
+                            />
+                        );
+                    })}
+                </div>
             ) : (
-                <Title order={3} c="dimmed" style={{ width: '100%', textAlign: 'center', marginTop: '2rem' }}>
+                <Title order={3} c="dimmed" className={classes.emptyMessage}>
                     Товары не найдены. Попробуйте изменить фильтры.
                 </Title>
             )}
