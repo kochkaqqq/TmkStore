@@ -1,6 +1,7 @@
 import { Modal, Stack, Text, NumberInput, Select, Button, Group, Divider, Paper, Alert } from '@mantine/core';
 import { useState, useMemo, useEffect } from 'react';
 import { Product } from '../../utils/product.types';
+import { CartItem } from '../../utils/cart.types';
 import { useFilters } from '../../context/FilterContext';
 import { IconAlertCircle } from '@tabler/icons-react';
 
@@ -13,7 +14,7 @@ interface AddToCartModalProps {
 export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps) {
     const { filters } = useFilters();
     const [selectedStock, setSelectedStock] = useState<string>('');
-    const [quantity, setQuantity] = useState<number | ''>(0); // Изменено: может быть пустой строкой
+    const [quantity, setQuantity] = useState<number | ''>('');
     const [inputError, setInputError] = useState<string>('');
 
     // Получаем выбранную доступность
@@ -33,7 +34,7 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
             : selectedAvailability.in_stock_meters;
     }, [selectedAvailability, unit]);
 
-    // Минимальный шаг (на основе средней трубы)
+    // Минимальный шаг
     const minStep = useMemo(() => {
         if (!selectedAvailability) return 0.01;
         return unit === 'tons'
@@ -41,29 +42,20 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
             : selectedAvailability.avg_tube_length;
     }, [selectedAvailability, unit]);
 
-    // Функция для округления количества до ближайшего кратного шага
     const roundToStep = (value: number, step: number): number => {
         if (step === 0) return value;
         return Math.round(value / step) * step;
     };
 
-    // Проверка валидности количества
     const isValidQuantity = useMemo(() => {
-        // Если количество пустое или 0, возвращаем false
         if (quantity === '' || quantity === 0 || quantity <= 0) return false;
-
         const numQuantity = Number(quantity);
-
         if (numQuantity > maxQuantity) return false;
-
-        // Проверяем, что количество кратно шагу (с учетом погрешности)
         const remainder = Math.abs((numQuantity % minStep) / minStep);
         const isMultiple = remainder < 0.001 || remainder > 0.999;
-
         return isMultiple;
     }, [quantity, maxQuantity, minStep]);
 
-    // Расчет цены с учетом скидок
     const calculatePrice = useMemo(() => {
         if (!selectedAvailability || !isValidQuantity || quantity === '' || quantity === 0) {
             return {
@@ -81,7 +73,6 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
         const discounts = unit === 'tons' ? pricing.ton_discounts : pricing.meter_discounts;
         const basePrice = unit === 'tons' ? pricing.price_per_ton : pricing.price_per_meter;
 
-        // Найти подходящую скидку
         let discountedPrice = basePrice;
         for (let i = discounts.length - 1; i >= 0; i--) {
             if (numQuantity >= discounts[i].min_quantity) {
@@ -105,22 +96,18 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
         };
     }, [selectedAvailability, quantity, unit, isValidQuantity]);
 
-    // Инициализация первого склада
     useEffect(() => {
         if (opened && product.availability.length > 0 && !selectedStock) {
             setSelectedStock(product.availability[0].stock.id);
         }
     }, [opened, product.availability, selectedStock]);
 
-    // Сброс количества при смене склада или единицы
     useEffect(() => {
-        setQuantity(''); // Сброс в пустую строку
+        setQuantity('');
         setInputError('');
     }, [selectedStock, unit]);
 
-    // Обработка изменения количества
     const handleQuantityChange = (value: number | string) => {
-        // Если пустое поле
         if (value === '' || value === undefined) {
             setQuantity('');
             setInputError('');
@@ -128,8 +115,6 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
         }
 
         const numValue = Number(value);
-
-        // Если не число или NaN
         if (isNaN(numValue)) {
             setQuantity('');
             setInputError('');
@@ -138,7 +123,6 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
 
         setQuantity(numValue);
 
-        // Проверка валидности
         if (numValue <= 0) {
             setInputError('');
             return;
@@ -149,7 +133,6 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
             return;
         }
 
-        // Проверка кратности шагу
         const remainder = Math.abs((numValue % minStep) / minStep);
         const isMultiple = remainder < 0.001 || remainder > 0.999;
 
@@ -163,7 +146,6 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
         }
     };
 
-    // Кнопка "Исправить количество"
     const handleFixQuantity = () => {
         const numQuantity = Number(quantity) || 0;
         const fixed = roundToStep(numQuantity, minStep);
@@ -174,22 +156,44 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
     const handleAddToCart = () => {
         if (!selectedAvailability || !isValidQuantity || quantity === '' || quantity === 0) return;
 
-        const cartItem = {
+        const cartItem: CartItem = {
+            id: `${product.id}-${selectedStock}-${Date.now()}`, // Уникальный ID
             productId: product.id,
             productName: product.name,
             stockId: selectedStock,
             stockName: selectedAvailability.stock.city,
+            stockAddress: selectedAvailability.stock.address || '',
             quantity: Number(quantity),
             unit,
             pricePerUnit: calculatePrice.discountedPrice,
             totalPrice: calculatePrice.totalWithVat,
-            discount: calculatePrice.discount
+            discount: calculatePrice.discount,
+            product: {
+                gost: product.gost,
+                steel_grade: product.steel_grade,
+                diameter: product.diameter,
+                wall_thickness: product.wall_thickness,
+                manufacturer: product.manufacturer
+            }
         };
 
-        console.log('Добавление в корзину:', cartItem);
-        // Здесь добавить в контекст корзины или отправить на сервер
-
-        onClose();
+        // Получаем корзину из localStorage
+        try {
+            const cartRaw = localStorage.getItem('cart');
+            const cart: CartItem[] = cartRaw ? JSON.parse(cartRaw) : [];
+            
+            // Добавляем новый товар
+            cart.push(cartItem);
+            
+            // Сохраняем обратно
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            console.log('Товар добавлен в корзину:', cartItem);
+            
+            onClose();
+        } catch (error) {
+            console.error('Ошибка при добавлении в корзину:', error);
+        }
     };
 
     return (
@@ -200,8 +204,8 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
             size="lg"
             centered
         >
+            {/* Остальной код без изменений */}
             <Stack gap="md">
-                {/* Информация о продукте */}
                 <Paper p="sm" withBorder>
                     <Text size="sm" fw={600}>{product.name}</Text>
                     <Group gap="xs" mt="xs">
@@ -210,7 +214,6 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
                     </Group>
                 </Paper>
 
-                {/* Выбор склада */}
                 <Select
                     label="Склад"
                     placeholder="Выберите склад"
@@ -223,7 +226,6 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
                     required
                 />
 
-                {/* Информация о наличии */}
                 {selectedAvailability && (
                     <Paper p="sm" withBorder>
                         <Group justify="space-between">
@@ -243,7 +245,6 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
                     </Paper>
                 )}
 
-                {/* Ввод количества */}
                 <NumberInput
                     label={`Количество (${unitLabel})`}
                     placeholder={`Кратно ${minStep.toFixed(3)} ${unitLabel}`}
@@ -258,26 +259,22 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
                     description={`Шаг: ${minStep.toFixed(3)} ${unitLabel} (одна труба). Максимум: ${maxQuantity.toFixed(3)} ${unitLabel}`}
                 />
 
-                {/* Кнопка исправления */}
                 {inputError && quantity !== '' && quantity !== 0 && (
-                    <Button
-                        variant="light"
-                        color="#ff5106"
-                        size="xs"
-                        onClick={handleFixQuantity}
-                    >
-                        Округлить до {roundToStep(Number(quantity) || 0, minStep).toFixed(3)} {unitLabel}
-                    </Button>
+                    <>
+                        <Button
+                            variant="light"
+                            color="#ff5106"
+                            size="xs"
+                            onClick={handleFixQuantity}
+                        >
+                            Округлить до {roundToStep(Number(quantity) || 0, minStep).toFixed(3)} {unitLabel}
+                        </Button>
+                        <Alert icon={<IconAlertCircle size={16} />} color="orange" variant="light">
+                            {inputError}
+                        </Alert>
+                    </>
                 )}
 
-                {/* Предупреждение о некратном значении */}
-                {inputError && quantity !== '' && quantity !== 0 && (
-                    <Alert icon={<IconAlertCircle size={16} />} color="orange" variant="light">
-                        {inputError}
-                    </Alert>
-                )}
-
-                {/* Расчет цены */}
                 {quantity !== '' && quantity !== 0 && selectedAvailability && isValidQuantity && (
                     <>
                         <Divider />
@@ -341,7 +338,6 @@ export function AddToCartModal({ opened, onClose, product }: AddToCartModalProps
                     </>
                 )}
 
-                {/* Кнопки */}
                 <Group justify="flex-end" mt="md">
                     <Button variant="subtle" onClick={onClose} color="#ff5106">
                         Отмена
