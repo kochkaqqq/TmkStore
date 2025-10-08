@@ -5,12 +5,14 @@ interface ProductCardProps {
     id: string;
     description: string;
     ntd: string;
-    thickness: string; // например "5 мм"
+    thickness: string;
     size: string;
     steelGrade: string;
     factory: string;
     inStock: boolean;
-    priceWithVat: number; // число без единиц
+    priceWithVat: number;
+    stockQuantity: number; // Добавлено: количество на складе
+    unit: 'tons' | 'meters'; // Добавлено: единица измерения
 }
 
 export function ProductCard({
@@ -23,7 +25,11 @@ export function ProductCard({
     factory,
     inStock,
     priceWithVat,
+    stockQuantity,
+    unit,
 }: ProductCardProps) {
+    const unitLabel = unit === 'tons' ? 'т' : 'м';
+    
     return (
         <Card padding="md" className={classes.card}>
             <Stack>
@@ -63,19 +69,27 @@ export function ProductCard({
 
                 <Group className={classes.titleLevel4Row}>
                     <Text className={inStock ? classes.inStock : classes.outOfStock}>
-                        {inStock ? 'В НАЛИЧИИ' : 'НЕТ В НАЛИЧИИ'}
+                        {inStock ? `В НАЛИЧИИ: ${stockQuantity.toFixed(2)} ${unitLabel}` : 'НЕТ В НАЛИЧИИ'}
                     </Text>
 
                     <Text className={classes.titleLevel5}>
                         <span className={classes.labelText}>Цена с НДС</span>
                         {' '}
-                        <span className={classes.priceText}>{priceWithVat.toFixed(2)}</span>
-                        <span className={classes.unitText}>₽/т</span>
+                        <span className={classes.priceText}>
+                            {priceWithVat.toLocaleString('ru-RU', { maximumFractionDigits: 2 })}
+                        </span>
+                        <span className={classes.unitText}> ₽/{unitLabel}</span>
                     </Text>
                 </Group>
 
                 <Group className={classes.buttonsGroup}>
-                    <Button variant="outline" size="xs" onClick={() => console.log('Add to cart ' + id)} className={classes.buttonOval}>
+                    <Button 
+                        variant="outline" 
+                        size="xs" 
+                        onClick={() => console.log('Add to cart ' + id)} 
+                        className={classes.buttonOval}
+                        disabled={!inStock}
+                    >
                         В корзину
                     </Button>
                 </Group>

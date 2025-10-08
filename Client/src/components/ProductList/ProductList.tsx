@@ -21,7 +21,7 @@ export function ProductList() {
                 if (!matchesType) return false;
             }
 
-            // Фильтр по складу - проверяем availability
+            // Фильтр по складу
             if (filters.stock_ids.length > 0) {
                 const hasStock = product.availability.some(avail =>
                     filters.stock_ids.includes(avail.stock.id)
@@ -103,6 +103,16 @@ export function ProductList() {
                 displayedProducts.map((product) => {
                     // Получаем первую доступность для отображения
                     const firstAvailability = product.availability[0];
+                    
+                    // Определяем количество и цену в зависимости от выбранной единицы
+                    const stockQuantity = filters.unit === 'tons'
+                        ? firstAvailability?.in_stock_tons || 0
+                        : firstAvailability?.in_stock_meters || 0;
+
+                    const priceWithVat = filters.unit === 'tons'
+                        ? firstAvailability?.pricing.price_per_ton || 0
+                        : firstAvailability?.pricing.price_per_meter || 0;
+
                     const inStock = product.availability.some(
                         avail => avail.in_stock_tons > 0 || avail.in_stock_meters > 0
                     );
@@ -118,7 +128,9 @@ export function ProductList() {
                             steelGrade={product.steel_grade}
                             factory={product.manufacturer}
                             inStock={inStock}
-                            priceWithVat={firstAvailability?.pricing.price_per_ton || 0}
+                            priceWithVat={priceWithVat}
+                            stockQuantity={stockQuantity}
+                            unit={filters.unit}
                         />
                     );
                 })
