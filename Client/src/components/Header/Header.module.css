@@ -1,0 +1,37 @@
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: saturate(180%) blur(10px);
+}
+
+.inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.links {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+.contactBadge {
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    transition: box-shadow 180ms ease, transform 120ms ease;
+}
+
+.contactLink:hover .contactBadge {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+:where(.mantine-dark) .contactLink:hover .contactBadge {
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+}
